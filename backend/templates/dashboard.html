@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Dashboard</title>
+    <style>
+        body {
+            background-color: #1A1F2B;
+            color: white;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50%;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .parking-slots, .parking-details {
+            width: 45%;
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .slot {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            font-size: 18px;
+            color: white;
+        }
+
+        .slot.empty {
+            background-color: #4CAF50; 
+        }
+
+        .slot.occupied {
+            background-color: #F44336;
+        }
+
+        .legend {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .dot {
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot.green {
+            background-color: #4CAF50;
+        }
+
+        .dot.red {
+            background-color: #F44336;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .voice-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .voice-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Downtown Parking Complex</h1>
+        <p>123 Main St, Downtown</p>
+        <div class="badges">
+            <span class="badge">24/7</span>
+            <span class="badge" id="available-spots">Available: 9</span>
+            <span class="badge">$5.99/hr</span>
+        </div>
+    </header>
+    <main>
+        <section class="parking-slots">
+            <h2>Select a Parking Slot</h2>
+            <div class="legend">
+                <span class="dot green"></span> Available
+                <span class="dot red"></span> Occupied
+            </div>
+            <div class="slot-grid"></div>
+        </section>
+        <section class="parking-details">
+            <h2>Parking Area Details</h2>
+            <p>A modern parking complex with 9 slots.</p>
+            <ul>
+                <li>CCTV</li>
+                <li>24/7</li>
+                <li>Covered</li>
+                <li>Security</li>
+            </ul>
+            <p>Pricing: $5.99/hr</p>
+        </section>
+    </main>
+    <footer>
+        <h2>Live Status</h2>
+        <p>Total Spots: 9</p>
+        <p id="available-spots-footer">Available Spots: 9</p>
+        <button class="voice-button" onclick="startListening()">🎤 Voice Command</button>
+    </footer>
+    <script src="C:\Users\manis\OneDrive\Desktop\Park_Smart\static\voice_navigation.js"></script>
+    <script>
+        function updateDashboard() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    const slotGrid = document.querySelector('.slot-grid');
+                    slotGrid.innerHTML = '';
+                    let available = 0;
+                    data.forEach((status, index) => {
+                        const slot = document.createElement('div');
+                        slot.classList.add('slot');
+                        slot.textContent = `Slot ${index + 1}`;
+                        if (status === 'Empty') {
+                            slot.classList.add('empty');
+                            available++;
+                        } else {
+                            slot.classList.add('occupied');
+                        }
+                        slotGrid.appendChild(slot); 
+                    });
+                    document.getElementById('available-spots').textContent = `Available: ${available}`;
+                    document.getElementById('available-spots-footer').textContent = `Available Spots: ${available}`;
+                })
+                .catch(error => console.error('Error fetching status:', error));
+        }
+
+        setInterval(updateDashboard, 5000);
+        updateDashboard();
+    </script>
+</body>
+</html>
